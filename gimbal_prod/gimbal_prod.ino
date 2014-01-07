@@ -77,8 +77,6 @@ int last_update;
 int cycle_time;
 long last_cycle = 0;
 int timerVal = 50;
-// end of Variables
-
 
 
 /**************************************************************
@@ -93,12 +91,15 @@ void setup()
 {
   Wire.begin();      // join I2C bus  
   Serial.begin(9600);    //  initialize serial communication
-//  Serial.println("Initializing I2C devices...");
 
-  // verify connection
-//  Serial.println("Testing device connections...");
-//  Serial.println(mpu.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
+  if(debug == true){
+    Serial.println("Initializing I2C devices...");
+   // verify connection
+    Serial.println("Testing device connections...");
+    Serial.println(mpu.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
  
+  }
+
   pinMode(LED_PIN, OUTPUT);  // configure LED pin
   //attach servos to outputs 6 and 5. 
   //and write the nominal value(90) to set the operating point
