@@ -95,15 +95,29 @@ void setup()
    // verify connection
     Serial.println("Testing device connections...");
     Serial.println(mpu.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
- 
+    
+    Serial.println("\n\n\nUpdating internal sensor offsets...\n");
+  }
+  pinMode(LED_PIN, OUTPUT);  // configure LED pin
+  offsetter();
+  calibrate();
+  if(debug==true){
+    timerVal=120;
   }
 
-  pinMode(LED_PIN, OUTPUT);  // configure LED pin
   //attach servos to outputs 6 and 5. 
   //and write the nominal value(90) to set the operating point
+  roll_servo.attach(6); //yellow
+  roll_servo.write(90);
+  pitch_servo.attach(5); //blue
+  pitch_servo.write(90);
 
-  
-//  Serial.println("\n\n\nUpdating internal sensor offsets...\n");
+//  Serial.println("Initialization complete.....");
+
+}
+
+
+void offsetter(){
   mpu.setClockSource(MPU6050_CLOCK_PLL_ZGYRO);
   mpu.setFullScaleGyroRange(LEAST_SENSITIVE_GYRO);
   mpu.setFullScaleAccelRange(LEAST_SENSITIVE_ACCEL);
@@ -115,19 +129,6 @@ void setup()
   mpu.setXAccelOffset(-1250);
   mpu.setYAccelOffset(275);
 //  mpu.setZAccelOffset(-850);
-
-  calibrate();
-  if(debug==true){
-    timerVal=120;
-  }
-
-  roll_servo.attach(6); //yellow
-  roll_servo.write(90);
-  pitch_servo.attach(5); //blue
-  pitch_servo.write(90);
-
-//  Serial.println("Initialization complete.....");
-
 }
 
 /***************************************************************
