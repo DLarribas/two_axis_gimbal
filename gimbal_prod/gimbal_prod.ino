@@ -102,7 +102,7 @@ void setup()
   offsetter();
   calibrate();
 
-  //attach servos to outputs 6 and 5. 
+  //attach servos to outputs 6 and 5.
   //and write the nominal value(90) to set the operating point
   roll_servo.attach(6); //yellow
   roll_servo.write(90);
