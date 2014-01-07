@@ -422,9 +422,6 @@ void graphME(char(axis))
   }
 }
 
-
-
-
 /***************************************************************
 Function: MAIN LOOP
   performs data gathering, computing, and executing. uncomment
