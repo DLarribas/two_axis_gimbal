@@ -208,6 +208,7 @@ void sampleGyro()
 /***************************************************************
 FUNCTION sampleAccel()
   samples accelerometer data, storing data in global variables
+  TODO: update to use arctan2f instead of lame simple sin()
 ***************************************************************/
 void sampleAccel()
 {
