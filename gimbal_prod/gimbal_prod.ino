@@ -22,14 +22,12 @@
 #include "Servo.h"
 
 #define LED_PIN 13
-#define MOST_SENSITIVE_GYRO  MPU6050_GYRO_FS_250 // using this would require severe modification to offsets/scale factors
-#define MOST_SENSITIVE_ACCEL MPU6050_ACCEL_FS_2 // using this would require severe modification to offsets/scale factors
 #define LEAST_SENSITIVE_GYRO MPU6050_GYRO_FS_2000
 #define LEAST_SENSITIVE_ACCEL MPU6050_ACCEL_FS_16
 #define M_PI 3.14159265359
 
 Servo roll_servo; // axis
-Servo tilt_servo; // axis
+Servo pitch_servo; // axis
 MPU6050 mpu; 
 
 bool blinkState=false;
@@ -125,8 +123,8 @@ void setup()
 
   roll_servo.attach(6); //yellow
   roll_servo.write(90);
-  tilt_servo.attach(5); //blue
-  tilt_servo.write(90);
+  pitch_servo.attach(5); //blue
+  pitch_servo.write(90);
 
 //  Serial.println("Initialization complete.....");
 
@@ -270,7 +268,7 @@ void execute()
   //NOTE THESE MIGHT BE REVERSED!!!! also they might need to be mapped
   //if one is rolling/tilting wrong direction, multiply angle by -1
 
-  tilt_servo.write(map(xAngle, -90, 90, 0, 180));
+  pitch_servo.write(map(xAngle, -90, 90, 0, 180));
   roll_servo.write(map(yAngle, -90, 90, 0, 180));
 }
 
