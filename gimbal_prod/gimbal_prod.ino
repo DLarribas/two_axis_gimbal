@@ -92,18 +92,15 @@ void setup()
 
   if(debug == true){
     Serial.println("Initializing I2C devices...");
-   // verify connection
     Serial.println("Testing device connections...");
     Serial.println(mpu.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
-    
     Serial.println("\n\n\nUpdating internal sensor offsets...\n");
+    timerVal=120;
   }
+
   pinMode(LED_PIN, OUTPUT);  // configure LED pin
   offsetter();
   calibrate();
-  if(debug==true){
-    timerVal=120;
-  }
 
   //attach servos to outputs 6 and 5. 
   //and write the nominal value(90) to set the operating point
@@ -112,7 +109,9 @@ void setup()
   pitch_servo.attach(5); //blue
   pitch_servo.write(90);
 
-//  Serial.println("Initialization complete.....");
+  if(debug == true){
+    Serial.println("Initialization complete.....");
+  }
 
 }
 
@@ -124,11 +123,11 @@ void offsetter(){
   mpu.setXGyroOffset(40);
   mpu.setYGyroOffset(20);
   mpu.setSleepEnabled(false);
-  //mpu.setZGyroOffset(-30);
+  //mpu.setZGyroOffset(-30);  //z axis not used currently
   
   mpu.setXAccelOffset(-1250);
   mpu.setYAccelOffset(275);
-//  mpu.setZAccelOffset(-850);
+//  mpu.setZAccelOffset(-850); // z axis not used currentlys
 }
 
 /***************************************************************
