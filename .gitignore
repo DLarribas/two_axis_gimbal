@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ./gimbal_prod/I2Cdev.cpp
 ./gimbal_prod/I2Cdev.h
 ./gimbal_prod/MPU6050.cpp
@@ -64,6 +65,8 @@
 
 # makeidx
 =======
+=======
+>>>>>>> remote1/master
 *.acn
 *.acr
 *.alg
@@ -75,11 +78,15 @@
 *.glg
 *.glo
 *.gls
+<<<<<<< HEAD
+>>>>>>> remote1/master
+=======
 >>>>>>> remote1/master
 *.idx
 *.ilg
 *.ind
 *.ist
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 # minitoc
@@ -99,6 +106,8 @@
 # xindy
 *.xdy
 =======
+=======
+>>>>>>> remote1/master
 *.lof
 *.log
 *.lot
@@ -116,4 +125,7 @@
 *.vrb
 *.xdy
 *.tdo
+<<<<<<< HEAD
+>>>>>>> remote1/master
+=======
 >>>>>>> remote1/master
