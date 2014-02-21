@@ -1,4 +1,4 @@
 two_axis_gimbal
 ===============
 
-Arduino Two Axis Gimbal
+Arduino based two axis gimbal
