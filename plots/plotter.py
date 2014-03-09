@@ -6,7 +6,7 @@
 # electronut.in
 # https://gist.github.com/electronut/5730160
 # 
-# pretty much entirely taken from the above github link.
+# pretty much entirely borrowed from the above github link. with modifications for this application
 #
 # i couldn't immediately figure out how to fix this, so it is only implemented for
 # one axis....
