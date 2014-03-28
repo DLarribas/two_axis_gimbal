@@ -1,15 +1,13 @@
 ################################################################################
 # plotter.py
 #
-# Display analog data from Arduino using Python (matplotlib)
-# 
+# PLOTS GYRO, ACCEL, AND  FILTERED ANGLE ONLY!!!!
+# gimbal_prod.ino MUST BE CONFIGURED WITH graphME('axis','v') option!!!!!!!!!
+#
+# Modified from example found on:
 # electronut.in
 # https://gist.github.com/electronut/5730160
-# 
-# pretty much entirely borrowed from the above github link. with modifications for this application
 #
-# i couldn't immediately figure out how to fix this, so it is only implemented for
-# one axis....
 ################################################################################
 
 import sys
@@ -95,8 +93,6 @@ def main():
             line = ser.readline()
             #data stores values from incoming serial datastream of float vals
             #DON'T TRY TO SEND THIS ANY STRINGS OR WHATNOT
-            #we need a clean data stream
-            #debugging on arduino can sometimes return shit like "..0" when you start the script up
             # example of clean datastream:
             #  0.00, 10, 14, 1.8, 111
             # note: commas aren't needed to seperate values

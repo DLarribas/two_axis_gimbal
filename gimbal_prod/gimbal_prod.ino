@@ -13,10 +13,10 @@
   NOTE: this file requires the I2Cdev and MPU6050 libraries either installed to
   the arduino libraries directory, or in the path of the gimbal_prod.ino file.
 
-  TODO: come up with better Gimbal name.
+  TODO: come up with better gimbal name.
 */
  
-#include "Wire.h"                
+#include "Wire.h"
 #include "I2Cdev.h"
 #include "MPU6050.h"
 #include "Servo.h"
@@ -94,6 +94,10 @@ float Kp = 1;
 float Ki = 1;
 float Kd = 1;
 
+
+int KpPIN = 2;
+int KiPIN = 3;
+int KdPIN = 4;
 
 /**************************************************************
 FUNCTION: setup()
@@ -195,8 +199,8 @@ void calibrate()
 //  Serial.print("\tyAccel_calibrate:");
 //  Serial.println(yAccel_calibrate);
   Kp = 1;
-  Ki = 0.05;
-  Kd = -0.03;
+  Ki = 1;
+  Kd = 1;
 }
 
 
@@ -347,7 +351,6 @@ void execute()
 }
 
 
-
 /***************************************************************
 FUNCTION timing()
   borrowed this function from arduino robotics textbook.
@@ -468,31 +471,57 @@ FUNCTION: graphME
 
 inputs 
 **************************************************************/
-void graphME(char(graphType))
+void graphME(char axis, char option)
 {
-  if(graphType == 'xOutput')
+  if(axis == 'x')
   {
-    //reminder: this plots to outputPlotter.py
-    Serial.print(xAngle);
-    Serial.print(" ");
-    Serial.println(xOutput);
+    if(option == 'o')
+    {
+      //reminder: this plots to outputPlotter.py
+      Serial.print(xAngle);
+      Serial.print(" ");
+      Serial.println(xOutput);
+    }
+    if(option == 'r')
+    {
+      //reminder: this plots to plotter.py
+      Serial.print(xGyro_tst);
+      Serial.print(" ");
+      Serial.print(xAccel_angle);
+      Serial.print(" ");
+      Serial.println(xAngle);
+    }
+    if(option == 't') //'t' is tune
+    {
+      //reminder: this plots to PIDplot.py
+      Serial.print(xAngle);
+      Serial.print(" ");
+      Serial.print(xOutput);
+      Serial.print(" ");
+      Serial.print(Kp);
+      Serial.print(" ");
+      Serial.print(Ki);
+      Serial.print(" ");
+      Serial.println(Kd);
+
+        // these may have to be remapped
+      Kp = analogRead(KpPIN);
+      Ki = analogRead(KiPIN);
+      Kd = analogRead(KdPIN);
+    }
+
   }
   
-  if(graphType == 'x')
-  {
-    //reminder: this plots to plotter.py
-    Serial.print(xGyro_tst);
-    Serial.print(" ");
-    Serial.print(xAccel_angle);
-    Serial.print(" ");
-    Serial.println(xAngle);
-  }
 }
 
 /***************************************************************
 Function: MAIN LOOP
   performs data gathering, computing, and executing. uncomment
   printDEBUG or printCSV for debugging/extracting data.
+
+  graphME(axis, option) is a function to assist in real time 
+  graphing. graphME('x','t') will enable the proper outputs to
+  allow for PID tuning
 ***************************************************************/
 void loop()
 {
@@ -504,7 +533,7 @@ void loop()
   timing();
   //printDEBUG();
   //printCSV();
-  graphME('x');
+  graphME('x','t');
   blinkState = !blinkState;
   digitalWrite(LED_PIN, blinkState);
 }

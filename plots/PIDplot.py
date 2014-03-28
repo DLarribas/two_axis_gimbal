@@ -10,7 +10,6 @@
 #
 # 
 ################################################################################
-
 import sys
 import serial
 import numpy as np
@@ -25,6 +24,9 @@ class AnalogData:
   def __init__(self, maxLen):
     self.angle = deque([0.0]*maxLen)
     self.output = deque([0.0]*maxLen)
+    self.Kp = deque([0.0]*maxLen)
+    self.Ki = deque([0.0]*maxLen)
+    self.Kd = deque([0.0]*maxLen)
     self.maxLen = maxLen
 
   # ring buffer
@@ -38,10 +40,13 @@ class AnalogData:
   # add data
   def add(self, data):
     #if you're plotting more or less data, you need to adjust this assert length
-    assert(len(data) == 2)
+    assert(len(data) == 5)
     #depending on the location of the values on the data stream, modify what is what
     self.addToBuf(self.angle, data[0])
     self.addToBuf(self.output, data[1])
+    self.addToBuf(self.Kp, data[2])
+    self.addToBuf(self.Ki, data[3])
+    self.addToBuf(self.Kd, data[4])
     
 # plot class
 class AnalogPlot:
@@ -79,9 +84,10 @@ def main():
     strPort = sys.argv[1]
 
     # plot parameters
-    analogData = AnalogData(100)
+    analogData = AnalogData(1000)
     analogPlot = AnalogPlot(analogData)
 
+    print '\n\n\n Twist pots to tune PID constants\n\n\n'
     print 'plotting data...'
 
     ser = serial.Serial(strPort, 9600)
@@ -98,13 +104,22 @@ def main():
             try:
               data = [float(val) for val in line.split()]
               # this only attempts to plot if 2 values are stored in data, helps if data isn't returned
-              if(len(data) == 2):
-                  analogData.add(data)
-                  analogPlot.update(analogData)
+              if(len(data) == 5):
+                analogData.add(data)
+                analogPlot.update(analogData)
+                # PERHAPS INTRODUCE A CSV WRITER HERE
+                Kp = data[2]
+                Ki = data[3]
+                Kd = data[4]
             except ValueError:
               print'bad data point'
         except KeyboardInterrupt:
             print 'exiting'
+            print ''
+            print 'The final values of the PID constants were:'
+            print 'Kp = ' + str(Kp)
+            print 'Ki = ' + str(Ki)
+            print 'Kd = ' + str(Kd)
             break
 
 # call main
