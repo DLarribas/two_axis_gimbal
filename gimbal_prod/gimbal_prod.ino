@@ -53,8 +53,7 @@ float xGyro_raw, yGyro_raw;
 float xGyro_rate = 0.00;
 float yGyro_rate = 0.00;
 float xGyro_angle, yGyro_angle;
-float xGyro_tst;
-float yGyro_tst;
+float xGyro_tst, yGyro_tst;
 
 float xGyro_scale = 0.13;
 float yGyro_scale = 0.13;
@@ -196,8 +195,8 @@ void calibrate()
 //  Serial.print("\tyAccel_calibrate:");
 //  Serial.println(yAccel_calibrate);
   Kp = 1;
-  Ki = 0;
-  Kd = 0;
+  Ki = 0.05;
+  Kd = -0.03;
 }
 
 
@@ -210,12 +209,14 @@ void sampleGyro()
   mpu.getRotation(&gx, &gy, &gz);
   xGyro_raw = gx - xGyro_calibrate;
   xGyro_rate = (xGyro_raw * xGyro_scale) * (cycle_time*.001);
+  xGyro_tst = xGyro_tst + xGyro_rate;
   xGyro_angle = xAngle + xGyro_rate;
 
 
   yGyro_raw = (gy - yGyro_calibrate) * -1;
   yGyro_rate = (yGyro_raw * yGyro_scale) * (cycle_time*.001);
-  yGyro_angle = xAngle + yGyro_rate;
+  yGyro_tst = yGyro_tst + yGyro_rate;
+  yGyro_angle = yAngle + yGyro_rate;
 
   //TODO: GET PRECISE LOOPTIME known as gyro_time
   // Serial.print("xGyro_raw: ");
@@ -272,8 +273,8 @@ void sampleAccel()
 
 
     //method4 experimenting
-      yAccel_raw = ax/30;// - yAccel_calibrate;
-      yAccel_angle = (float) yAccel_raw;
+    yAccel_raw = ax/30;// - yAccel_calibrate;
+    yAccel_angle = (float) yAccel_raw;
 }
 
 /***************************************************************
@@ -306,8 +307,8 @@ void compute()
   yError = desired - yAngle;
 
   //integral
-  xInt = xInt + xError * (cycle_time*.001);
-  yInt = yInt + yError * (cycle_time*.001);
+  xInt = xInt + (xError * (cycle_time*.001));
+  yInt = yInt + (yError * (cycle_time*.001));
 
   //derivative
   xDer = (xError - xErrorOld)/(cycle_time*.001);
@@ -379,7 +380,7 @@ void printDEBUG()
 
     Serial.print("\t");
     Serial.print("xGyro:\t");
-    if (xGyro_tst < 0)
+    if (xGyro_angle < 0)
       Serial.print(xGyro_angle);
     else 
     {
@@ -393,7 +394,7 @@ void printDEBUG()
 
     Serial.print("\t");
     Serial.print("yGyro:\t");
-    if (yGyro_tst < 0)
+    if (yGyro_angle < 0)
       Serial.print(yGyro_angle);
     else 
     {
@@ -444,18 +445,22 @@ description: gyro x   ; accel x   ; filtered angle x     ; gyro y     ; accel y;
 **************************************************************/
 void printCSV()
 {
-    Serial.print(xGyro_tst);
+    Serial.print(xGyro_angle);
     Serial.print(", ");
     Serial.print(xAccel_angle);
     Serial.print(", ");
     Serial.print(xAngle);
     Serial.print(", ");
-    Serial.print(yGyro_tst);
+    Serial.print(xOutput);
+    Serial.print(", ");
+    Serial.print(yGyro_angle);
     Serial.print(", ");
     Serial.print(yAccel_angle);
     Serial.print(", ");
     Serial.print(yAngle);
-    Serial.println("; ");
+    Serial.print(", ");
+    Serial.print(yOutput);
+    Serial.println(",");
 }
 
 /**************************************************************
@@ -463,41 +468,24 @@ FUNCTION: graphME
 
 inputs 
 **************************************************************/
-void graphME(char(axis))
+void graphME(char(graphType))
 {
-  if(axis == 'x')
+  if(graphType == 'xOutput')
   {
-    //reminder: xangle is filtered 
-    Serial.print(xGyro_angle);
-    Serial.print(" ");
+    //reminder: this plots to outputPlotter.py
     Serial.print(xAngle);
     Serial.print(" ");
     Serial.println(xOutput);
   }
   
-  if(axis == 'y')
+  if(graphType == 'x')
   {
-    //reminder: yAngle is filtered
-    Serial.print(yGyro_tst);
-    Serial.print(" ");
-    Serial.print(yAccel_angle);
-    Serial.print(" ");
-    Serial.println(yAngle);
-  }
-  if(axis == 'z')
-  {
-    //reminder.... z is fking both axes, not the z fking axis
+    //reminder: this plots to plotter.py
     Serial.print(xGyro_tst);
     Serial.print(" ");
     Serial.print(xAccel_angle);
     Serial.print(" ");
-    Serial.print(xAngle);
-    Serial.print(" ");
-    Serial.print(yGyro_tst);
-    Serial.print(" ");
-    Serial.print(yAccel_angle);
-    Serial.print(" ");
-    Serial.println(yAngle);
+    Serial.println(xAngle);
   }
 }
 
