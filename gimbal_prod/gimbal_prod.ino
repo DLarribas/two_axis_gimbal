@@ -41,6 +41,8 @@ int16_t gx, gy, gz;
 //these are angles written to servos
 float xAngle = 0.00;
 float yAngle = 0.00;
+float xOutput = 0.00;
+float yOutput = 0.00;
 
 //calibrator values (set by initial function)
 int xGyro_calibrate, yGyro_calibrate;
@@ -77,6 +79,23 @@ long last_cycle = 0;
 int timerVal = 50;
 
 
+// PID function variables
+float desired = 0.00;
+float xErrorOld = 0;
+float yErrorOld = 0;
+float xDer = 0;
+float yDer = 0;
+float xInt = 0;
+float yInt = 0;
+float xError = 0;
+float yError = 0;
+
+// PID constants . these should be computed in the calibrate function.
+float Kp = 1;
+float Ki = 1;
+float Kd = 1;
+
+
 /**************************************************************
 FUNCTION: setup()
 	initializes i2c bus
@@ -96,6 +115,7 @@ void setup()
     Serial.println(mpu.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
     Serial.println("\n\n\nUpdating internal sensor offsets...\n");
     timerVal=120;
+
   }
 
   pinMode(LED_PIN, OUTPUT);  // configure LED pin
@@ -108,6 +128,15 @@ void setup()
   roll_servo.write(90);
   pitch_servo.attach(5); //blue
   pitch_servo.write(90);
+
+  // set first cycle time, the rest will be defined by the timer funtion
+  cycle_time = timerVal * .001;
+
+  //initialize some PID variables
+  float xErrorOld = 0.0;
+  float yErrorOld = 0.0;
+  float xInt = 0.0;
+  float yInt = 0.0;
 
   if(debug == true){
     Serial.println("Initialization complete.....");
@@ -166,6 +195,9 @@ void calibrate()
 //  Serial.print(xAccel_calibrate);
 //  Serial.print("\tyAccel_calibrate:");
 //  Serial.println(yAccel_calibrate);
+  Kp = 1;
+  Ki = 0;
+  Kd = 0;
 }
 
 
@@ -177,18 +209,15 @@ void sampleGyro()
 {
   mpu.getRotation(&gx, &gy, &gz);
   xGyro_raw = gx - xGyro_calibrate;
-  xGyro_rate = (xGyro_raw * xGyro_scale) * gyro_time;
-  xGyro_tst = xGyro_tst + xGyro_rate;
+  xGyro_rate = (xGyro_raw * xGyro_scale) * (cycle_time*.001);
   xGyro_angle = xAngle + xGyro_rate;
 
 
   yGyro_raw = (gy - yGyro_calibrate) * -1;
-  yGyro_rate = (yGyro_raw * yGyro_scale) * gyro_time;
-  yGyro_tst = yGyro_tst + yGyro_rate;
-  yGyro_angle = yAngle + yGyro_rate;
+  yGyro_rate = (yGyro_raw * yGyro_scale) * (cycle_time*.001);
+  yGyro_angle = xAngle + yGyro_rate;
+
   //TODO: GET PRECISE LOOPTIME known as gyro_time
-
-
   // Serial.print("xGyro_raw: ");
   // Serial.print((int)xGyro_raw);
   // Serial.print("\tyGyro_raw: ");
@@ -248,15 +277,59 @@ void sampleAccel()
 }
 
 /***************************************************************
-FUNCTION compute()
+FUNCTION filter()
   computes the highpass/lowpass complementary filter
+***************************************************************/
+void filter()
+{
+  xAngle = (float)((gyro_weight * xGyro_angle) + (accel_weight * xAccel_angle));
+  yAngle = (float)((gyro_weight * yGyro_angle) + (accel_weight * yAccel_angle));
+}
+
+/***************************************************************
+FUNCTION compute()
+  computes the PID
+      previous_error = 0
+      integral = 0 
+      start:
+      error = setpoint - measured_value
+      integral = integral + error*dt
+      derivative = (error - previous_error)/dt
+      output = Kp*error + Ki*integral + Kd*derivative
+      previous_error = error
+      wait(dt)
+      goto start
 ***************************************************************/
 void compute()
 {
-  xAngle = (int)((gyro_weight * xGyro_angle) + (accel_weight * xAccel_angle));
-  yAngle = (int)((gyro_weight * yGyro_angle) + (accel_weight * yAccel_angle));
-}
+  xError = desired - xAngle;
+  yError = desired - yAngle;
 
+  //integral
+  xInt = xInt + xError * (cycle_time*.001);
+  yInt = yInt + yError * (cycle_time*.001);
+
+  //derivative
+  xDer = (xError - xErrorOld)/(cycle_time*.001);
+  yDer = (yError - yErrorOld)/(cycle_time*.001);
+
+  xOutput = (Kp*xError) + (Ki*xInt) + (Kd*xDer);
+  yOutput = (Kp*yError) + (Ki*yInt) + (Kd*yDer);
+
+  xErrorOld = xError;
+  yErrorOld = yError;
+
+  //Serial.print("xError:  ");
+  //Serial.print(xError);
+  //Serial.print("\txInt:  ");
+  //Serial.print(xInt);
+  //Serial.print("\txDer:  ");
+  //Serial.print(xDer);
+  //Serial.print("\txOutput:  ");
+  //Serial.println(xOutput);
+
+
+}
 
 
 /***************************************************************
@@ -268,8 +341,8 @@ void execute()
   //NOTE THESE MIGHT BE REVERSED!!!! also they might need to be mapped
   //if one is rolling/tilting wrong direction, multiply angle by -1
 
-  pitch_servo.write(map(xAngle, -90, 90, 0, 180));
-  roll_servo.write(map(yAngle, -90, 90, 0, 180));
+  pitch_servo.write(map(xOutput, -90, 90, 0, 180));
+  roll_servo.write(map(yOutput, -90, 90, 0, 180));
 }
 
 
@@ -307,25 +380,25 @@ void printDEBUG()
     Serial.print("\t");
     Serial.print("xGyro:\t");
     if (xGyro_tst < 0)
-      Serial.print(xGyro_tst);
+      Serial.print(xGyro_angle);
     else 
     {
       Serial.print(" ");
-      Serial.print(xGyro_tst);
+      Serial.print(xGyro_angle);
     }
 
     Serial.print("\t");
-        Serial.print("yAccel: ");
+    Serial.print("yAccel: ");
     Serial.print(yAccel_angle);
 
     Serial.print("\t");
     Serial.print("yGyro:\t");
     if (yGyro_tst < 0)
-      Serial.print(yGyro_tst);
+      Serial.print(yGyro_angle);
     else 
     {
       Serial.print(" ");
-      Serial.print(yGyro_tst);
+      Serial.print(yGyro_angle);
     }
     Serial.print("\t");
   }  
@@ -345,6 +418,13 @@ void printDEBUG()
     Serial.print(" ");
     Serial.print(yAngle);
   }
+
+  Serial.print("\t");
+  Serial.print("Output xAngle:  ");
+  Serial.print(xOutput);
+  Serial.print("\t");
+  Serial.print("Output yAngle:  ");
+  Serial.print(yOutput);
   Serial.print(" ");
   Serial.print(" time: ");
   Serial.println(cycle_time); // print the loop cycle time
@@ -388,11 +468,11 @@ void graphME(char(axis))
   if(axis == 'x')
   {
     //reminder: xangle is filtered 
-    Serial.print(xGyro_tst);
+    Serial.print(xGyro_angle);
     Serial.print(" ");
-    Serial.print(xAccel_angle);
+    Serial.print(xAngle);
     Serial.print(" ");
-    Serial.println(xAngle);
+    Serial.println(xOutput);
   }
   
   if(axis == 'y')
@@ -430,6 +510,7 @@ void loop()
 {
   sampleGyro();
   sampleAccel();
+  filter();
   compute();
   execute();
   timing();
