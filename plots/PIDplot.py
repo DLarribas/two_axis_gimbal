@@ -2,7 +2,8 @@
 # outputPlotter.py
 #
 # PLOTS ONLY FILTERED ANGLE AND OUTPUTS!!!!
-# gimbal_prod.ino MUST BE CONFIGURED WITH graphME('axis','o') option!!!!!!!!!
+# but allows for tuning of 
+# gimbal_prod.ino MUST BE CONFIGURED WITH graphME('axis','t') option!!!!!!!!!
 #
 # Modified from example found on:
 # electronut.in

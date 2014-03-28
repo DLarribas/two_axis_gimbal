@@ -482,7 +482,7 @@ void graphME(char axis, char option)
       Serial.print(" ");
       Serial.println(xOutput);
     }
-    if(option == 'r')
+    if(option == 'v')
     {
       //reminder: this plots to plotter.py
       Serial.print(xGyro_tst);
