@@ -95,9 +95,9 @@ float Ki = 1;
 float Kd = 1;
 
 
-int KpPIN = 2;
-int KiPIN = 3;
-int KdPIN = 4;
+int KpPIN = 0;
+int KiPIN = 1;
+int KdPIN = 2;
 
 /**************************************************************
 FUNCTION: setup()
@@ -199,8 +199,8 @@ void calibrate()
 //  Serial.print("\tyAccel_calibrate:");
 //  Serial.println(yAccel_calibrate);
   Kp = 1;
-  Ki = 1;
-  Kd = 1;
+  Ki = 0.01;
+  Kd = 0.01;
 }
 
 
@@ -505,9 +505,9 @@ void graphME(char axis, char option)
       Serial.println(Kd);
 
         // these may have to be remapped
-      Kp = analogRead(KpPIN);
-      Ki = analogRead(KiPIN);
-      Kd = analogRead(KdPIN);
+      Kp = analogRead(KpPIN) * 0.01;
+      Ki = analogRead(KiPIN) * 0.01;
+      Kd = analogRead(KdPIN) * 0.01;
     }
 
   }

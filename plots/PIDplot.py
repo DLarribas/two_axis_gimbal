@@ -14,6 +14,7 @@
 import sys
 import serial
 import numpy as np
+import csv
 #from time import sleep
 from collections import deque
 from matplotlib import pyplot as plt
@@ -85,8 +86,14 @@ def main():
     strPort = sys.argv[1]
 
     # plot parameters
-    analogData = AnalogData(1000)
+    analogData = AnalogData(100)
     analogPlot = AnalogPlot(analogData)
+    badval = 0
+
+    csvfile = open('outputFileName.csv', 'wb')
+    writer = csv.writer(csvfile)
+    writer.writerow(['-------------------------------'])
+    writer.writerow(['angle','output','Kp', 'Ki', 'Kd'])
 
     print '\n\n\n Twist pots to tune PID constants\n\n\n'
     print 'plotting data...'
@@ -97,30 +104,36 @@ def main():
             line = ser.readline()
             #data stores values from incoming serial datastream of float vals
             #DON'T TRY TO SEND THIS ANY STRINGS OR WHATNOT
-            #we need a clean data stream
+            #we need a clean data stream, the try except blocks should be able to stop the plot from crashing
             #debugging on arduino can sometimes return shit like "..0" when you start the script up
             # example of clean datastream:
             #  0.00, 10, 14, 1.8, 111
             # note: commas aren't needed to seperate values
             try:
               data = [float(val) for val in line.split()]
-              # this only attempts to plot if 2 values are stored in data, helps if data isn't returned
+              # this only attempts to plot if 5 values are stored in data, helps if data isn't returned
               if(len(data) == 5):
                 analogData.add(data)
                 analogPlot.update(analogData)
-                # PERHAPS INTRODUCE A CSV WRITER HERE
+                # TEST CSV WRITER
                 Kp = data[2]
                 Ki = data[3]
                 Kd = data[4]
+                print "Kp = " + str(Kp) + " Ki = " + str(Ki) + " Kd = " + str(Kd)
+                writer.writerow(data)
             except ValueError:
-              print'bad data point'
+              #print'bad data point'
+              badval += 1
         except KeyboardInterrupt:
             print 'exiting'
+            csvfile.close()
             print ''
             print 'The final values of the PID constants were:'
             print 'Kp = ' + str(Kp)
             print 'Ki = ' + str(Ki)
             print 'Kd = ' + str(Kd)
+            print ''
+            print 'Bad Values: ' + str(badval)
             break
 
 # call main
