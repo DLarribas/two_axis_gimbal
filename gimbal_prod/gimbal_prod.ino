@@ -141,9 +141,10 @@ void setup()
   float xInt = 0.0;
   float yInt = 0.0;
 
-  if(debug == true){
-    Serial.println("Initialization complete.....");
-  }
+  Serial.println("Initialization complete.....");
+  Serial.println("Kp = %s", Kp)
+  Serial.println("Ki = %s", Ki)
+  Serial.println("Kd = %s", Kd)
 
 }
 
@@ -348,6 +349,8 @@ void execute()
 
   pitch_servo.write(map(xOutput, -90, 90, 0, 180));
   roll_servo.write(map(yOutput, -90, 90, 0, 180));
+
+  
 }
 
 
@@ -359,9 +362,9 @@ FUNCTION timing()
 void timing()
 {
   // check to make sure it has been exactly timerVal milliseconds since the last recorded time-stamp
-  while((millis() - last_cycle) < timerVal){
-    delay(1);
-  }
+  //while((millis() - last_cycle) < timerVal){
+  //  delay(1);
+  //}
   // once the loop cycle reaches 50 mS, reset timer value and proceed
   cycle_time = millis() - last_cycle;
   last_cycle = millis();
@@ -444,26 +447,25 @@ FUNCTION: printCSV
   can be seen
 
   
-description: gyro x   ; accel x   ; filtered angle x     ; gyro y     ; accel y; filtered y;
+description: gyro x; accel x; filtered angle x; output x; gyro y; accel y; filtered y; output y;
 **************************************************************/
 void printCSV()
 {
-    Serial.print(xGyro_angle);
-    Serial.print(", ");
-    Serial.print(xAccel_angle);
-    Serial.print(", ");
-    Serial.print(xAngle);
-    Serial.print(", ");
-    Serial.print(xOutput);
-    Serial.print(", ");
-    Serial.print(yGyro_angle);
-    Serial.print(", ");
-    Serial.print(yAccel_angle);
-    Serial.print(", ");
-    Serial.print(yAngle);
-    Serial.print(", ");
-    Serial.print(yOutput);
-    Serial.println(",");
+  Serial.print(xGyro_angle);
+  Serial.print(", ");
+  Serial.print(xAccel_angle);
+  Serial.print(", ");
+  Serial.print(xAngle);
+  Serial.print(", ");
+  Serial.print(xOutput);
+  Serial.print(", ");
+  Serial.print(yGyro_angle);
+  Serial.print(", ");
+  Serial.print(yAccel_angle);
+  Serial.print(", ");
+  Serial.print(yAngle);
+  Serial.print(", ");
+  Serial.println(yOutput);
 }
 
 /**************************************************************
@@ -511,7 +513,6 @@ void graphME(char axis, char option)
     }
 
   }
-  
 }
 
 /***************************************************************
@@ -525,15 +526,22 @@ Function: MAIN LOOP
 ***************************************************************/
 void loop()
 {
+  // sample data and filter into angle
   sampleGyro();
   sampleAccel();
   filter();
+
+  //compute PID, execute servo PWM write
   compute();
   execute();
-  timing();
+
+  // Graphing/Plotting/Data Acquisition
   //printDEBUG();
   //printCSV();
   graphME('x','t');
+
+  //
   blinkState = !blinkState;
   digitalWrite(LED_PIN, blinkState);
+  timing();
 }
