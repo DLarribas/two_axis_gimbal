@@ -7,7 +7,11 @@ import getpass
 
 # data is stored on desktop
 user = getpass.getuser()
+
+#if linux:
 fname="/home/"+user+"/Desktop/tmp/gimbalData/data.csv"
+#if mac:
+#fname = "/Users/"+user+"/Desktop/tmp/gimbalData/data.csv"
 
 #load data
 data = np.genfromtxt(fname, delimiter=',', skip_header=1, skip_footer=1, names=['xgyro','xaccel','xfilter','xoutput','ygyro','yaccel','yfilter','youtput'])
@@ -27,8 +31,7 @@ ax1.set_ylabel('angle')
 ax1.plot(sample,data['xgyro'])
 ax1.plot(sample,data['xaccel'])
 ax1.plot(sample,data['xfilter'])
-ax1.plot(sample,data['xoutput'])
-ax1.legend(('xGyro', 'xAccel', 'xFilter', 'xOutput'))
+ax1.legend(('xGyro', 'xAccel', 'xFilter'))
 
 #plot all y axis measurements
 fig2 = plt.figure()
@@ -39,8 +42,7 @@ ax2.set_ylabel('angle')
 ax2.plot(sample,data['ygyro'])
 ax2.plot(sample,data['yaccel'])
 ax2.plot(sample,data['yfilter'])
-ax2.plot(sample,data['youtput'])
-ax2.legend(('yGyro', 'yAccel', 'yFilter', 'yOutput'))
+ax2.legend(('yGyro', 'yAccel', 'yFilter'))
 
 #plot x axis control
 fig3 = plt.figure()

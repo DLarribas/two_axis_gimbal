@@ -223,19 +223,6 @@ void sampleGyro()
   yGyro_tst = yGyro_tst + yGyro_rate;
   yGyro_angle = yAngle + yGyro_rate;
 
-  //TODO: GET PRECISE LOOPTIME known as gyro_time
-  // Serial.print("xGyro_raw: ");
-  // Serial.print((int)xGyro_raw);
-  // Serial.print("\tyGyro_raw: ");
-  // Serial.print((int)yGyro_raw);
-  // Serial.print("\txGyro_rate: ");
-  // Serial.print((int)xGyro_rate);
-  // Serial.print("\tyGyro_rate:");
-  // Serial.print((int)yGyro_rate);
-  // Serial.print("\txGyro_angle:");
-  // Serial.print((int)xGyro_tst);
-  // Serial.print("\tyGyro_angle:");
-  // Serial.println((int)yGyro_tst);
 }
 
 
@@ -325,14 +312,6 @@ void compute()
   xErrorOld = xError;
   yErrorOld = yError;
 
-  //Serial.print("xError:  ");
-  //Serial.print(xError);
-  //Serial.print("\txInt:  ");
-  //Serial.print(xInt);
-  //Serial.print("\txDer:  ");
-  //Serial.print(xDer);
-  //Serial.print("\txOutput:  ");
-  //Serial.println(xOutput);
 
 
 }
@@ -372,74 +351,6 @@ void timing()
 
 
 /**************************************************************
-FUNCTION printDEBUG()
-  borrowed this function from arduino robotics textbook. 
-  consider rewriting a bit.
-**************************************************************/
-void printDEBUG()
-{
-  // Debug with the Serial monitor
-  if (debug == true)
-  {
-    Serial.print("xAccel: ");
-    Serial.print(xAccel_angle);
-
-    Serial.print("\t");
-    Serial.print("xGyro:\t");
-    if (xGyro_angle < 0)
-      Serial.print(xGyro_angle);
-    else 
-    {
-      Serial.print(" ");
-      Serial.print(xGyro_angle);
-    }
-
-    Serial.print("\t");
-    Serial.print("yAccel: ");
-    Serial.print(yAccel_angle);
-
-    Serial.print("\t");
-    Serial.print("yGyro:\t");
-    if (yGyro_angle < 0)
-      Serial.print(yGyro_angle);
-    else 
-    {
-      Serial.print(" ");
-      Serial.print(yGyro_angle);
-    }
-    Serial.print("\t");
-  }  
-
-  Serial.print("Filtered xAngle: ");
-  if (xAngle < 0)
-    Serial.print(xAngle);
-  else {
-    Serial.print(" ");
-    Serial.print(xAngle);
-  }
-  Serial.print("\t");
-  Serial.print("Filtered yAngle: ");
-  if (yAngle < 0)
-    Serial.print(yAngle);
-  else {
-    Serial.print(" ");
-    Serial.print(yAngle);
-  }
-
-  Serial.print("\t");
-  Serial.print("Output xAngle:  ");
-  Serial.print(xOutput);
-  Serial.print("\t");
-  Serial.print("Output yAngle:  ");
-  Serial.print(yOutput);
-  Serial.print(" ");
-  Serial.print(" time: ");
-  Serial.println(cycle_time); // print the loop cycle time
-  //Serial.print ("\n");
-}
-
-
-/**************************************************************
 FUNCTION: printCSV
   function prints data to serial monitor in hopes to save to
   csv file for use in plotting. note the xGyro_tst and yGyro_tst
@@ -451,7 +362,7 @@ description: gyro x; accel x; filtered angle x; output x; gyro y; accel y; filte
 **************************************************************/
 void printCSV()
 {
-  Serial.print(xGyro_angle);
+  Serial.print(xGyro_tst);
   Serial.print(", ");
   Serial.print(xAccel_angle);
   Serial.print(", ");
@@ -459,7 +370,7 @@ void printCSV()
   Serial.print(", ");
   Serial.print(xOutput);
   Serial.print(", ");
-  Serial.print(yGyro_angle);
+  Serial.print(yGyro_tst);
   Serial.print(", ");
   Serial.print(yAccel_angle);
   Serial.print(", ");
@@ -536,7 +447,6 @@ void loop()
   execute();
 
   // Graphing/Plotting/Data Acquisition
-  //printDEBUG();
   //printCSV();
   graphME('x','t');
 
